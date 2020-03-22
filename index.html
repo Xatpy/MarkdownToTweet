@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Markdown to tweet</title>
+
+  <style>
+  </style>
+</head>
+
+<body>
+    <h1> Markdown to tweet - BOLD </h1>
+    <textarea id="txtInput" style="width: 100%">AB*CDe FgH*JKL</textarea>
+    <div id="divBtn">
+        <button onclick="convertText()">Copy Text</button>
+    </div>
+    <div>
+        <input value="output" id="field2"  style="width: 100%">
+    </div>
+
+    <script>
+
+        const ASCII_VALUE_A = 65;
+        const ASCII_VALUE_Z = 90;
+        const ASCII_VALUE_a = 97;
+        const ASCII_VALUE_z = 122;
+        const UNICODE_BOLD_A = "1D5D4";
+        const UNICODE_BOLD_a = "1D41A";
+
+        function convertText() {
+            let output = "";
+            let input = document.getElementById("txtInput").value;
+            let listOutputMetaData = new Array(input.length);
+
+            /*input = input.replace("A", "\u{1D5D4}");
+            input = input.replace("B", "\u{1D5D5}");
+            input = input.replace("C", "\u{1D5D6}");
+            input = input.replace("D", "\u{1D5D7}");
+            input = input.replace("E", "\u{1D5D8}");*/
+
+            let listOccurrences = getIndicesOf("*", input, true);
+            let listsOfPairs = splitListInPairs(listOccurrences);
+            for (let countPairs = 0;  countPairs < listsOfPairs.length; ++countPairs) {
+                const initIndex = listsOfPairs[countPairs][0] + 1;
+                const endIndex = listsOfPairs[countPairs][1] - 1;
+                for (let indexString = initIndex; indexString <= endIndex; ++indexString) {
+                    listOutputMetaData[indexString] = "b";
+                }
+            }
+
+            /*for (let i = 0; i < input.length; ++i) {
+                output += getConvertedLetter(input[i]);
+            }*/
+
+            for (let i = 0; i < input.length; ++i) {
+                let charInput = input[i];
+                if (listOutputMetaData[i] === "b") {
+                    output += getConvertedLetter(charInput);
+                } else {
+                    if (charInput !== "*") {
+                        output += charInput;
+                    }
+                }
+            }
+
+            document.getElementById("field2").value = output;
+        }
+
+        function addHexValues(hexValue, adding) {
+            return (parseInt(hexValue, 16) + parseInt(adding, 16)).toString(16);
+        }
+
+        function convertToBold(value, asciiReference, unicodeReference) {
+            const disffAsciiHex = (value - asciiReference).toString(16);
+            const addedValueHex = addHexValues(unicodeReference, disffAsciiHex).toUpperCase();
+            return String.fromCodePoint(parseInt(addedValueHex, 16));
+        }
+
+        function isConvertibleCharacter(asciiValue, initRange, endRange) {
+            return (asciiValue >= initRange && asciiValue <= endRange);
+        }
+
+        function getConvertedLetter(input) {
+            const asciiValue = input.charCodeAt(0);
+            if (isConvertibleCharacter(asciiValue, ASCII_VALUE_A, ASCII_VALUE_Z)) {
+                return convertToBold(asciiValue, ASCII_VALUE_A, UNICODE_BOLD_A);
+            }
+            if (isConvertibleCharacter(asciiValue, ASCII_VALUE_a, ASCII_VALUE_z)) {
+                return convertToBold(asciiValue, ASCII_VALUE_a, UNICODE_BOLD_a);
+            }
+            return input;
+        }
+
+        function getIndicesOf(searchStr, str, caseSensitive) {
+            var searchStrLen = searchStr.length;
+            if (searchStrLen == 0) {
+                return [];
+            }
+            var startIndex = 0, index, indices = [];
+            if (!caseSensitive) {
+                str = str.toLowerCase();
+                searchStr = searchStr.toLowerCase();
+            }
+            while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+                indices.push(index);
+                startIndex = index + searchStrLen;
+            }
+            return indices;
+        }
+
+        var splitListInPairs = function(arr) {
+            var pairs = [];
+            for (var i=0 ; i<arr.length ; i+=2) {
+                if (arr[i+1] !== undefined) {
+                    pairs.push ([arr[i], arr[i+1]]);
+                }
+            }
+            return pairs;
+        };
+
+        document.onkeydown = function (e) {
+            e = e || window.event;
+            switch (e.which || e.keyCode) {
+                case 13 : //Your Code Here (13 is ascii code for 'ENTER')
+                    convertText();
+                break;
+            }
+        }
+
+        // https://en.wikipedia.org/wiki/Mathematical_Alphanumeric_Symbols
+        // https://www.compart.com/en/unicode/U+1D60C
+        // https://www.compart.com/en/unicode/U+1D5D6
+        // Mathematical Sans-Serif Bold Capital
+
+    </script>
+
+  <!-- Google Analytics: change UA-XXXXX-Y to be your site's ID. -->
+  <script>
+    window.ga = function () { ga.q.push(arguments) }; ga.q = []; ga.l = +new Date;
+    ga('create', 'UA-XXXXX-Y', 'auto'); ga('set','transport','beacon'); ga('send', 'pageview')
+  </script>
+  <script src="https://www.google-analytics.com/analytics.js" async></script>
+</body>
+
+</html>
